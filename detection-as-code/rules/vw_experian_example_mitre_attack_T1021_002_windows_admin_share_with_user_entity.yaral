@@ -1,0 +1,19 @@
+rule vw_experian_example_mitre_attack_T1021_002_windows_admin_share_with_user_entity {
+meta:
+  author = "Google Cloud Security"
+  description = "Net use commands for SMB/Windows admin shares"
+events:
+  $process.metadata.event_type = "PROCESS_LAUNCH"
+  $process.target.process.command_line = /net.*use.*(C|ADMIN|IPC)\$/ nocase
+  $process.principal.user.userid = $userid
+  $user.graph.entity.user.userid  = $userid
+  $user.graph.metadata.entity_type = "USER"
+  $user.graph.metadata.source_type = "ENTITY_CONTEXT"
+  any $user.graph.relations.entity.group.group_display_name = "Domain Admins"
+
+match:
+  $userid over 5m  
+
+condition:
+  $process and $user
+}

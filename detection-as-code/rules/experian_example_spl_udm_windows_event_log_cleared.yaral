@@ -1,0 +1,38 @@
+rule experian_example_spl_udm_windows_event_log_cleared {
+  // This rule matches single events. Rules can also match multiple events within
+  // some time window. For details about how to write a multi-event rule, see
+  // https://cloud.google.com/chronicle/docs/detection/yara-l-2-0-overview#single-event_versus_multi-event
+
+  meta:
+    // Allows for storage of arbitrary key-value pairs of rule details - who
+    // wrote it, what it detects on, version control, etc.
+    // The "author" and "severity" fields are special, as they are used as
+    // columns on the rules dashboard. If you'd like to be able to sort based on
+    // these fields on the dashboard, make sure to add them here.
+    // Severity value, by convention, should be "Low", "Medium" or "High"
+    author = "Darren Swift"
+    description = "SPL query to YARA-L for Experian"
+    severity = "NA"
+
+  events:
+    $e.metadata.vendor_name = "Microsoft"
+    ($e.metadata.product_name = /.*-Security-Auditing$/ and
+    ($e.metadata.product_event_type = "1102" or $e.metadata.product_event_type = "1100") or
+    $e.metadata.product_name = /.*-EventSystem$/ and
+    $e.metadata.product_event_type = "104") 
+    $e.principal.hostname in %host_whitelist
+    $e.metadata.product_event_type = $event_code
+    $e.principal.hostname = $host
+
+  match:
+    $event_code, $host over 2h
+
+  outcome:
+    $cnt = count($e.metadata.event_type)
+    $message = array_distinct($e.metadata.description)
+
+  condition:
+    $e
+}
+
+// index = windows (source="*WinEventLog:Security" AND (EventCode=1102 OR EventCode=1100)) OR (source="*WinEventLog:System" AND EventCode=104) earliest = -2h | search [| inputlookup host_whitelist.csv | rename Computer as host | fields host]

@@ -1,0 +1,38 @@
+rule ueba_logins_from_unique_geos_30d {
+
+
+  meta:
+    // Allows for storage of arbitrary key-value pairs of rule details - who
+    // wrote it, what it detects on, version control, etc.
+    // The "author" and "severity" fields are special, as they are used as
+    // columns on the rules dashboard. If you'd like to be able to sort based on
+    // these fields on the dashboard, make sure to add them here.
+    // Severity value, by convention, should be "Low", "Medium" or "High"
+    author = "Global Security Architects"
+    description = "Leverages metrics functions to find and report first-time logins from new geographic locations"
+    severity = "Medium"
+
+events:
+    $e.metadata.event_type = "USER_LOGIN"
+    $e.metadata.log_type = "OKTA"
+    $e.security_result.action = "ALLOW"
+    $e.principal.ip_geo_artifact.location.country_or_region != ""
+    $e.metadata.base_labels.namespaces != "LogStory"
+    $userid = $e.target.user.userid
+    $location = $e.principal.ip_geo_artifact.location.country_or_region
+match:
+    // find events from now - 4h ago, which is the recommended look-back period
+    $userid, $location over 4h
+outcome:
+    $count_number_locations = count_distinct($location)
+    $location_list = array_distinct($location)
+    // check hourly analytics until daily analytics are available
+    $first_seen_today = max(metrics.auth_attempts_success(
+        period:1h, window:today, metric:first_seen, agg:max,
+        target.user.userid:$userid, principal.ip_geo_artifact.location.country_or_region:$location))
+    $first_seen_monthly = max(metrics.auth_attempts_success(
+        period:1d, window:30d, metric:first_seen, agg:max,
+        target.user.userid:$userid, principal.ip_geo_artifact.location.country_or_region:$location))
+condition:
+    $e and ($first_seen_today = 0) and ($first_seen_monthly = 0)
+}

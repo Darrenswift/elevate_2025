@@ -1,0 +1,41 @@
+rule fin6_initial_access {
+
+  meta:
+
+    author = "Swifty"
+    description = "Detecting fin6 activity"
+    severity = "Low"
+
+  events:
+    $d.metadata.event_type = "FILE_CREATION"
+    $d.principal.process.command_line = /outlook\.exe/ nocase
+    $d.target.file.full_path = /\.zip|exe|vbs|docm|docx/ nocase
+    $d.principal.user.userid = $user
+    //$d.principal.hostname = $host
+
+    //$d.metadata.event_timestamp.seconds <
+        //$e.metadata.event_timestamp.seconds
+
+    $e.metadata.event_type = "PROCESS_MODULE_LOAD"
+    $e.principal.process.file.full_path = /word\.exe/ nocase
+    $e.target.process.file.full_path = /VBEUI\.DLL/ nocase
+    //$e.principal.hostname = $host
+    $e.principal.user.userid = $user
+
+    $f.metadata.event_type = "FILE_CREATION"
+    $f.principal.process.command_line = /\/o/ nocase
+    $f.target.file.full_path = /\.exe/ nocase
+    //$f.principal.hostname = $host
+    $f.principal.user.userid = $user
+
+    $g.metadata.event_type = "NETWORK_CONNECTION"
+    $g.network.direction = "OUTBOUND"
+    //$g.principal.hostname = $host
+    $g.principal.user.userid = $user
+
+  match:
+    $user over 10m 
+
+  condition:
+    $d and $e and $f and $g
+}

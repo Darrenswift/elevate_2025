@@ -1,0 +1,8 @@
+host_whitelist:
+  description: 'hosts which are whitelisted or exempt from search / rule queries '
+  resource_name: projects/experian-secops/locations/us/instances/855c2a8b-c150-424d-af12-110ba11f95c8/referenceLists/host_whitelist
+  revision_create_time: '2024-09-17T13:21:08.127775Z'
+  rule_associations_count: 1
+  rules:
+  - projects/197510301419/locations/us/instances/855c2a8b-c150-424d-af12-110ba11f95c8/rules/ru_7a6185b4-8da2-4871-9f05-cd48e9cc5f4f
+  syntax_type: REFERENCE_LIST_SYNTAX_TYPE_PLAIN_TEXT_STRING

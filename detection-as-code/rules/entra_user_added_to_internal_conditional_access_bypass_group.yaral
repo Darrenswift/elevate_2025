@@ -1,0 +1,56 @@
+
+rule entra_user_added_to_internal_conditional_access_bypass_group {
+  meta:
+        description = "Detects user additions to the internal conditional access bypass group in Entra-ID"
+        about = "A conditional bypass group is a group of users (internal) specifically excluded from a Conditional Access policy, allowing them to access resources without having to meet the policy's requirements"
+        entra_documentation = "https://learn.microsoft.com/en-us/entra/id-governance/conditional-access-exclusion"
+        intel_threat_report = "https://www.virustotal.com/gui/collection/report--ecb46280230ea6ae591b337def7f3827ad8a9980c68822e02121c1e79ea6d439"
+        author = "darrenswift@google.com"
+        mitre_attack_tactic = "Persistence TA0003"
+        mitre_attack_technique = "Account Manipulation T1098"
+        mitre_attach_url = "https://attack.mitre.org/tactics/T1098/ , https://attack.mitre.org/techniques/TA0003/"
+        mitre_attack_version = "v13.1"
+        type = "alert"
+        tags = "persistence, account manipulation"
+        data_source = "azure_ad_audit, azure_ad_context"
+        severity = "Critical"
+        priority = "Critical"
+        date = "20/01/25"
+        version = "1.3"
+        source = "git repo path if being pulled from source control"
+
+  events:
+    (
+        // Event add member(s) to group
+        $e.metadata.log_type = "AZURE_AD_AUDIT" nocase and
+        $e.metadata.product_event_type = "Add member to group" nocase and
+        // Filtered on success, but this can be removed if Failed attempts are also of interest 
+        $e.security_result.summary = "success" nocase and 
+        // AD bypass group with elevated permissions - can be multiple groups or a reference list / data table if multiples
+        $e.target.group.group_display_name = "God-Mode-Internal-bypass" nocase and
+        //Aggregate by target_userid i.e. the user added to the group above
+        $target_user_id = $e.target.user.userid
+    )
+  match:
+        // designed with 1 minute to minimize detection time(s)
+        $target_user_id over 1m  
+  outcome:
+        $risk_score = max(
+         // Baseline score
+        20 +
+        // Risk score calculation based off main admin(s) users or groups
+        if($e.principal.user.userid != "admin@darrenswift.altostrat.com", 80) +
+        if($e.principal.user.userid = "admin@darrenswift.altostrat.com", 40)
+        )   
+        // Additional information which can be modfied by preference
+        $principal_user_userid = array_distinct($e.principal.user.userid)
+        $target_user_userid = array_distinct($e.target.user.userid)
+        $principal_asset_ip = array_distinct($e.principal.asset.ip)
+        $principal_ip = array_distinct($e.principal.ip)
+        $principal_user_email_addresses = array_distinct($e.principal.user.email_addresses)
+        $target_user_email_addresses = array_distinct($e.target.user.email_addresses)
+        $event_count = count_distinct($e.metadata.id) // Count of distinct events
+
+  condition:
+        $e
+}

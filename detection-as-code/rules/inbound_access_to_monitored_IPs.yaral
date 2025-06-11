@@ -1,0 +1,21 @@
+rule inbound_access_to_monitored_IPs {
+
+  meta:
+    author = "cmmartin@"
+    description = "Uses Data Tables to monitor for inbound access to active monitored services using Public GCP IP Addresses"
+    severity = "INFORMATION"
+    priority = "LOW"
+
+  setup:
+    graph_append [$address, %COE_GCP_PUBLIC_IP_ADDRESSES]
+
+  events:
+    $e.metadata.event_type = "NETWORK_CONNECTION"
+    $e.target.ip in %COE_GCP_PUBLIC_IP_ADDRESSES.address
+
+  outcome:
+    $risk_score = 0
+
+  condition:
+    $e
+}

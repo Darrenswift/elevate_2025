@@ -1,0 +1,44 @@
+rule fin6_process_migration {
+
+  meta:
+
+    author = "Swifty"
+    description = "Detecting process migration"
+    severity = "Low"
+
+  events:
+    $e.metadata.event_type = "PROCESS_MODULE_LOAD"  
+    $e.principal.process.command_line = /temp/ nocase
+    //$e.principal.process.command_line = $process_path
+    //$e.metadata.product_event_type = "8"
+    $e.principal.process.pid = $pid
+    $e.principal.process.command_line = $file
+    $e.principal.hostname = $host
+
+    //$e.target.process.pid = $target_id
+    //$e.principal.process.parent_process.product_specific_process_id = $parent_pid
+    //$e.target.process.product_specific_process_id = $target_pid
+
+    $f.metadata.event_type = "PROCESS_OPEN"
+    $f.principal.process.pid = $pid
+    $f.principal.process.command_line = $file
+    $f.principal.hostname = $host
+    //$f.target.process.pid = $target_id
+
+    $g.metadata.event_type = "PROCESS_TERMINATION"
+    $g.principal.process.pid = $pid
+    $g.principal.process.command_line = $file
+    $g.principal.hostname = $host
+    //$g.target.process.pid = $target_id
+
+
+  match:
+    $pid, $file, $host over 10m 
+
+  outcome:
+    $principalprocess = count_distinct($file)
+
+
+  condition:
+    $e and $f and $g
+}

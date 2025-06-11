@@ -1,0 +1,89 @@
+COE_GCP_PUBLIC_IP_ADDRESSES:
+  columns:
+  - column_index: 0
+    column_type: null
+    key_column: null
+    mapped_column_path: entity.artifact.ip
+    original_column: address
+  - column_index: 1
+    column_type: null
+    key_column: null
+    mapped_column_path: entity.artifact.network.dhcp.client_hostname
+    original_column: name
+  - column_index: 2
+    column_type: null
+    key_column: null
+    mapped_column_path: entity.asset.attribute.cloud.project.id
+    original_column: location
+  create_time: '2024-09-13T12:53:51.845592Z'
+  description: null
+  resource_name: projects/experian-secops/locations/us/instances/855c2a8b-c150-424d-af12-110ba11f95c8/dataTables/COE_GCP_PUBLIC_IP_ADDRESSES
+  row_time_to_live: null
+  rule_associations_count: 1
+  rules:
+  - projects/197510301419/locations/us/instances/855c2a8b-c150-424d-af12-110ba11f95c8/rules/ru_1095ce45-b7ef-4502-9d69-237d5ee2b183
+  update_time: '2024-09-13T12:58:53.490859Z'
+  uuid: e1a6064bcaea43e0ac7d55e92d9a0d39
+GTI_24_10017389_MD5:
+  columns:
+  - column_index: 0
+    column_type: null
+    key_column: null
+    mapped_column_path: entity.file.md5
+    original_column: Indicator_Value
+  - column_index: 1
+    column_type: STRING
+    key_column: null
+    mapped_column_path: null
+    original_column: Indicator_Type
+  - column_index: 2
+    column_type: null
+    key_column: null
+    mapped_column_path: entity.security_result.verdict_info.confidence_score
+    original_column: IC_Score
+  - column_index: 3
+    column_type: STRING
+    key_column: null
+    mapped_column_path: null
+    original_column: Associated_Actors
+  - column_index: 4
+    column_type: STRING
+    key_column: null
+    mapped_column_path: null
+    original_column: Associated_Malware
+  - column_index: 5
+    column_type: STRING
+    key_column: null
+    mapped_column_path: null
+    original_column: Associated_Tools
+  - column_index: 6
+    column_type: STRING
+    key_column: null
+    mapped_column_path: null
+    original_column: Associated_Campaigns
+  - column_index: 7
+    column_type: STRING
+    key_column: null
+    mapped_column_path: null
+    original_column: Exclusive
+  - column_index: 8
+    column_type: STRING
+    key_column: null
+    mapped_column_path: null
+    original_column: First_Seen
+  - column_index: 9
+    column_type: STRING
+    key_column: null
+    mapped_column_path: null
+    original_column: Last_Seen
+  create_time: '2024-09-13T12:51:00.441974Z'
+  description: 'Campaign 24.036: Suspected Russia-Nexus Activity Cluster Targets Ukrainian
+    Entities Via Signal Messenger Phishing'
+  resource_name: projects/experian-secops/locations/us/instances/855c2a8b-c150-424d-af12-110ba11f95c8/dataTables/GTI_24_10017389_MD5
+  row_time_to_live: null
+  rule_associations_count: 2
+  rules:
+  - projects/197510301419/locations/us/instances/855c2a8b-c150-424d-af12-110ba11f95c8/rules/ru_04ace612-9a92-4553-90a3-2839f7dbd461
+  - projects/197510301419/locations/us/instances/855c2a8b-c150-424d-af12-110ba11f95c8/rules/ru_5a094960-51ad-409c-880a-c4f6c3fff91d
+  update_time: '2024-09-13T12:56:01.814244Z'
+  uuid: d47454a94dd748d5afa74a6c52af8523

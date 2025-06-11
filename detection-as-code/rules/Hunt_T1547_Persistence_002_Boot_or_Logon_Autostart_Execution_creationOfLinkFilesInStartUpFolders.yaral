@@ -1,0 +1,59 @@
+rule Hunt_T1547_Persistence_002_Boot_or_Logon_Autostart_Execution_creationOfLinkFilesInStartUpFolders {
+  meta:
+    author = "swifty"
+    description = "Detects file creation or modification of '.lnk' files in startup folder locations and correlates with VirusTotal reputation data."
+    severity = "High"
+
+  events:
+    $e.metadata.event_type = "FILE_MODIFICATION" or $e.metadata.event_type = "FILE_CREATION"
+    re.regex($e.target.file.full_path, `Windows\\Start Menu\\Programs\\Startup.*\.lnk`) nocase 
+    $e.principal.user.userid = $userid
+    $e.target.file.sha256 = $file_hash
+
+    $vt.graph.metadata.entity_type = "FILE"
+    $vt.graph.metadata.source_type = "GLOBAL_CONTEXT"
+    $vt.graph.metadata.vendor_name = "VirusTotal"
+    $vt.graph.metadata.product_name = "VirusTotal Relationships"
+    $vt.graph.entity.file.sha256 = $file_hash
+
+    // Exclusion for OneNote
+    not (
+      re.regex($e.principal.process.file.full_path, `ONENOTE\.EXE`) nocase and
+      re.regex($e.target.file.full_path, `Windows\\Start Menu\\Programs\\Startup\\Send to OneNote\.lnk`) nocase
+    )
+    // Exclusion for Microsoft Teams
+    not (
+      re.regex($e.principal.process.file.full_path, `msedge\.exe`) nocase and
+      re.regex($e.target.file.full_path, `Windows\\Start Menu\\Programs\\Startup\\Microsoft Teams\.lnk`) nocase
+    )
+
+  match:
+    $file_hash over 5m 
+
+  outcome:
+    $risk_score = max(95)
+    //added to populate alert graph with additional context
+    $principal_hostname = array_distinct($e.principal.hostname)
+    $target_hostname = array_distinct($e.target.hostname)
+    $principal_process_pid = array_distinct($e.principal.process.pid)
+    $principal_process_command_line = array_distinct($e.principal.process.command_line)
+    $principal_process_file_sha256 = array_distinct($e.principal.process.file.sha256)
+    $principal_process_file_full_path = array_distinct($e.principal.process.file.full_path)
+    $principal_process_product_specfic_process_id = array_distinct($e.principal.process.product_specific_process_id)
+    $principal_process_parent_process_product_specfic_process_id = array_distinct($e.principal.process.parent_process.product_specific_process_id)
+    $target_process_pid = array_distinct($e.target.process.pid)
+    $target_process_command_line = array_distinct($e.target.process.command_line)
+    $target_process_file_sha256 = array_distinct($e.target.process.file.sha256)
+    $target_process_file_full_path = array_distinct($e.target.process.file.full_path)
+    $target_process_product_specfic_process_id = array_distinct($e.target.process.product_specific_process_id)
+    $target_process_parent_process_product_specfic_process_id = array_distinct($e.target.process.parent_process.product_specific_process_id)
+    $principal_user_userid = array_distinct($e.principal.user.userid)
+    // Commented out target.user.userid because it is already represented in graph as match variable. If match changes, can uncomment to add to results       
+    //$target_user_userid = array_distinct($file.target.user.userid)
+    $target_file_sha256 = array_distinct($e.target.file.sha256)
+    $target_file_full_path = array_distinct($e.target.file.full_path)
+
+
+  condition:
+    $e and $vt 
+}
