@@ -1306,6 +1306,18 @@ network_traffic_to_specific_country:
   revision_id: v_1744998561_661279000
   run_frequency: LIVE
   type: SINGLE_EVENT
+new_rule:
+  alerting: false
+  archive_time: null
+  archived: false
+  create_time: '2025-06-11T23:27:35.594847Z'
+  enabled: true
+  id: ru_6585edd0-747f-4399-9687-570bbdf9ec33
+  resource_name: projects/197510301419/locations/us/instances/855c2a8b-c150-424d-af12-110ba11f95c8/rules/ru_6585edd0-747f-4399-9687-570bbdf9ec33
+  revision_create_time: '2025-06-11T23:27:35.594847Z'
+  revision_id: v_1749684455_594847000
+  run_frequency: LIVE
+  type: SINGLE_EVENT
 o365_ADPowerShell_app_login_subsequent_activity:
   alerting: false
   archive_time: null
@@ -2230,6 +2242,3 @@ wmic_ntds_dit_T1003_003_cisa_report:
   revision_id: v_1744998263_313983000
   run_frequency: LIVE
   type: SINGLE_EVENT
-new_rule:
-  alerting: false
-  enabled: true
